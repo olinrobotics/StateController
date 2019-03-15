@@ -9,8 +9,8 @@
 #ifndef BEHAVIOR_H
 #define BEHAVIOR_H
 
-#include "midbrain_sc/TwistLabeled.h"
-#include "midbrain_sc/ArrayLabeled.h"
+#include <midbrain_sc/TwistLabeled.h>
+#include <midbrain_sc/ArrayLabeled.h>
 
 
 class Behavior {
