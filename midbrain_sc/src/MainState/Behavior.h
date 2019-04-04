@@ -11,22 +11,23 @@
 
 #include <midbrain_sc/TwistLabeled.h>
 #include <midbrain_sc/ArrayLabeled.h>
-
+#include <string>
 
 class Behavior {
   public:
-    Behavior(const char* n, const int l);
+    Behavior(std_msgs::String label, const int priority);
 
-  // Getters and Setters
-    int getId();
+    // Getters and Setters
+    int getPriority();
+    std_msgs::String getLabel();
     midbrain_sc::TwistLabeled getTwistMessage();
     midbrain_sc::ArrayLabeled getArrayMessage();
     void setMessage(midbrain_sc::TwistLabeled msg);
     void setMessage(midbrain_sc::ArrayLabeled msg);
 
   private:
-    int id;
-    const char* name;
+    int priority;
+    std_msgs::String label;
     midbrain_sc::TwistLabeled twist_message;
     midbrain_sc::ArrayLabeled array_message;
 
