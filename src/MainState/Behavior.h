@@ -9,8 +9,8 @@
 #ifndef BEHAVIOR_H
 #define BEHAVIOR_H
 
-#include <midbrain_sc/TwistLabeled.h>
-#include <midbrain_sc/ArrayLabeled.h>
+#include <state_controller/TwistLabeled.h>
+#include <state_controller/ArrayLabeled.h>
 #include <string>
 
 class Behavior {
@@ -20,16 +20,16 @@ class Behavior {
     // Getters and Setters
     int getPriority();
     std_msgs::String getLabel();
-    midbrain_sc::TwistLabeled getTwistMessage();
-    midbrain_sc::ArrayLabeled getArrayMessage();
-    void setMessage(midbrain_sc::TwistLabeled msg);
-    void setMessage(midbrain_sc::ArrayLabeled msg);
+    state_controller::TwistLabeled getTwistMessage();
+    state_controller::ArrayLabeled getArrayMessage();
+    void setMessage(state_controller::TwistLabeled msg);
+    void setMessage(state_controller::ArrayLabeled msg);
 
   private:
     int priority;
     std_msgs::String label;
-    midbrain_sc::TwistLabeled twist_message;
-    midbrain_sc::ArrayLabeled array_message;
+    state_controller::TwistLabeled twist_message;
+    state_controller::ArrayLabeled array_message;
 
 };
 

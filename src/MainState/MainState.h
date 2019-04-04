@@ -2,8 +2,8 @@
 #define MAIN_STATE_H
 
 #include <ros/ros.h>
-#include <midbrain_sc/TwistLabeled.h>
-#include <midbrain_sc/ArrayLabeled.h>
+#include <state_controller/TwistLabeled.h>
+#include <state_controller/ArrayLabeled.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/UInt8.h>
@@ -30,8 +30,8 @@ private:
 
   void stateCB(const std_msgs::String& msg);
   void activateCB(const std_msgs::Bool& msg);
-  void behaviorCB(const midbrain_sc::TwistLabeled& msg);
-  void behavior2CB(const midbrain_sc::ArrayLabeled& msg);
+  void behaviorCB(const state_controller::TwistLabeled& msg);
+  void behavior2CB(const state_controller::ArrayLabeled& msg);
   void setState(std_msgs::String state);
   void addBehavior(std::pair<std::string, std::string> pair);
   void updateBehaviors();

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11)
-project(midbrain_sc)
+project(state_controller)
 
 # Compile as C++11, supported in ROS Kinetic and newer
 set(CMAKE_CXX_FLAGS "-std=c++11")

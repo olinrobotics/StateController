@@ -25,20 +25,20 @@ std_msgs::String Behavior::getLabel() {
   return label;
 }
 
-midbrain_sc::TwistLabeled Behavior::getTwistMessage() {
+state_controller::TwistLabeled Behavior::getTwistMessage() {
   return twist_message;
 }
 
-midbrain_sc::ArrayLabeled Behavior::getArrayMessage() {
+state_controller::ArrayLabeled Behavior::getArrayMessage() {
   return array_message;
 }
 
-void Behavior::setMessage(midbrain_sc::TwistLabeled msg) {
+void Behavior::setMessage(state_controller::TwistLabeled msg) {
   //TODO(connor@students): Check that label is equal to id
   twist_message = msg;
 }
 
-void Behavior::setMessage(midbrain_sc::ArrayLabeled msg) {
+void Behavior::setMessage(state_controller::ArrayLabeled msg) {
   //TODO(connor@students): Check that label is equal to id
   array_message = msg;
 }

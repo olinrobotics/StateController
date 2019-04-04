@@ -12,7 +12,7 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/String.h>
 #include <vector>
-#include <midbrain_sc/Array.h>
+#include <state_controller/Array.h>
 #include <typeinfo>
 
 
@@ -24,7 +24,7 @@ MainState::MainState()
  , behavior2_sub(n.subscribe("/state_controller/cmd_behavior2", 10, &MainState::MainState::behavior2CB, this))
  , state_pub(n.advertise<std_msgs::String>("state", 1))
  , command_pub(n.advertise<geometry_msgs::Twist>("cmd_twist", 1))
- , command2_pub(n.advertise<midbrain_sc::Array>("cmd_array",1))
+ , command2_pub(n.advertise<state_controller::Array>("cmd_array",1))
  , curr_state()
  , is_activated(false) {
    curr_state.data = "safety";
@@ -43,7 +43,7 @@ void MainState::activateCB(const std_msgs::Bool& msg) {
   else {ROS_INFO("Disactivating Tractor");}
 }
 
-void MainState::behaviorCB(const midbrain_sc::TwistLabeled& msg) {
+void MainState::behaviorCB(const state_controller::TwistLabeled& msg) {
   /*
 */
 
@@ -66,7 +66,7 @@ void MainState::behaviorCB(const midbrain_sc::TwistLabeled& msg) {
   }
 }
 
-void MainState::behavior2CB(const midbrain_sc::ArrayLabeled& msg) {
+void MainState::behavior2CB(const state_controller::ArrayLabeled& msg) {
 /*
 */
   // Get priority of given behavior
@@ -83,7 +83,7 @@ void MainState::behavior2CB(const midbrain_sc::ArrayLabeled& msg) {
 
   // Update behavior, publish message
   msg_behavior->setMessage(msg);
-  midbrain_sc::Array messageToBePublished;
+  state_controller::Array messageToBePublished;
   if (msg.label.data == curr_state.data) {
     messageToBePublished.data = msg.data;
     command2_pub.publish(messageToBePublished);
