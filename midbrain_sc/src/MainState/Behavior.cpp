@@ -14,11 +14,15 @@
 /*
  * @brief Constructor TODO(connor@students) Turn into struct
  */
-Behavior::Behavior(const char* name, const int label)
- : name(name), id(label) { }
+Behavior::Behavior(std_msgs::String label, const int priority)
+ : label(label), priority(priority) { }
 
-int Behavior::getId() {
-  return id;
+int Behavior::getPriority() {
+  return priority;
+}
+
+std_msgs::String Behavior::getLabel() {
+  return label;
 }
 
 midbrain_sc::TwistLabeled Behavior::getTwistMessage() {
@@ -28,7 +32,6 @@ midbrain_sc::TwistLabeled Behavior::getTwistMessage() {
 midbrain_sc::ArrayLabeled Behavior::getArrayMessage() {
   return array_message;
 }
-
 
 void Behavior::setMessage(midbrain_sc::TwistLabeled msg) {
   //TODO(connor@students): Check that label is equal to id
