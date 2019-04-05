@@ -93,7 +93,7 @@ void MainState::setState(std_msgs::String state) {
 
   if (curr_state.data != state.data) {
     curr_state = state;
-    ROS_INFO("Activating State :%s", state.data.c_str());
+    ROS_INFO("Activating State %s", state.data.c_str());
     state_pub.publish(curr_state);
   }
 }

@@ -55,6 +55,12 @@ void Behavior::setMessage(state_controller::ArrayLabeled msg) {
 }
 
 // Overload comparison operators to compare priorities
+bool Behavior::operator= (Behavior b) {
+  label = b.getLabel();
+  priority = b.getPriority();
+  twist_message = b.getTwistMessage();
+  array_message = b.getArrayMessage();
+}
 bool Behavior::operator==(Behavior b) {
    if (label.data == b.getLabel().data && priority == b.getPriority()) return true;
    else return false;
@@ -80,12 +86,11 @@ bool Behavior::operator<=(Behavior b) {
  * @param[in] n: node for use in accessing param server
  * return alphabetized vector of Behavior objects as read from param server
  */
-std::vector<Behavior> getBehaviors(ros::NodeHandle n) {
+int getBehaviorVector(ros::NodeHandle n, std::vector<Behavior>& v) {
 
   // Obtain vector of all parameters
   std::vector<std::string> params;
   n.getParamNames(params);
-
   // Filter for parameters in /behaviors namespace
   std::vector<std::string> filteredParams (params.size());
   auto it = std::copy_if(params.begin(), params.end(), filteredParams.begin(),
@@ -93,22 +98,23 @@ std::vector<Behavior> getBehaviors(ros::NodeHandle n) {
                  if (param.length() < 11) return false;
                  return param.substr(0, 11) == "/behaviors/";
                });
-
   filteredParams.resize(std::distance(filteredParams.begin(),it));  // shrink container to new size
-  std::vector<Behavior> behaviors;
-  int counter = 0;
-  std::vector<int> tmp;
 
-  for(std::string param : filteredParams)
-    // This takes advantage of the assumption that parameters come in alphabetical order.
-    // First is up is the id, next is the priority after which the
-    // behavior is complete and added to the vector.
-    {
-      n.getParam(param, tmp);
-      Behavior b = Behavior(param.substr(11,param.length()), tmp[0]);
-      behaviors.push_back(b);
+  try {
+    std::string tmp;
+    for(std::string param : filteredParams)
+      // This takes advantage of the assumption that parameters come in alphabetical order.
+      // First is up is the id, next is the priority after which the
+      // behavior is complete and added to the vector.
+      {
+        n.getParam(param, tmp);
+        auto b = Behavior(param.substr(11,param.length()), atoi(tmp.c_str()));
+        v.push_back(b);
+      }
+    } catch (...) {
+      ROS_ERROR("Error building BehaviorLib::Behavior objects - Are your behavior parameters formatted correctly?");
+      ros::shutdown();
     }
-  return behaviors;
 }
 
 std::map<std::string, Behavior*>getBehaviorMap(ros::NodeHandle n) {

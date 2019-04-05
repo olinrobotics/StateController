@@ -43,9 +43,14 @@ Teleop::Teleop()
 , curr_behavior("empty", 2)
 {
   // Init and sort behavior list, current behavior
-  behaviors = getBehaviors(n);
-  sort(behaviors.begin(), behaviors.end(), compareBehaviorPriority);
-  curr_behavior = behaviors[0];
+  getBehaviorVector(n, behaviors);
+  sort(behaviors.begin(), behaviors.end());
+  try {
+    curr_behavior = behaviors.at(0);
+  } catch (const std::exception& e) {
+    ROS_ERROR("Behaviors not populated");
+    ros::shutdown();
+  }
 
   drive_msg.label = std_msgs::String();
   drive_msg.label.data = "teleop";

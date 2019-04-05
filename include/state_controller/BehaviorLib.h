@@ -23,6 +23,7 @@ class Behavior {
 
     // Overloads
     bool operator==(Behavior b);
+    bool operator=(Behavior b);
     bool operator< (Behavior b);
     bool operator> (Behavior b);
     bool operator>=(Behavior b);
@@ -38,6 +39,6 @@ class Behavior {
 
 };
 
-std::vector<Behavior> getBehaviors(ros::NodeHandle n);
+int getBehaviorVector(ros::NodeHandle n, std::vector<Behavior>& v);
 std::map<std::string, Behavior*> getBehaviorMap(ros::NodeHandle n);
 bool compareBehaviorPriority(Behavior b1, Behavior b2);

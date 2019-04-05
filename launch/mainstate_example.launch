@@ -18,5 +18,6 @@ add any nodes here that you need to interface with twists
 
 <rosparam command="load" file="$(find state_controller)/config/example_behaviors.yaml" />
 <node pkg="state_controller" type="MainState" name="mainstate" output="screen"/>
+<include file="$(find state_controller)/launch/teleop.launch"/>
 
 </launch>
