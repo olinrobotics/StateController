@@ -1,6 +1,6 @@
 /*
  * @file Behavior.cpp
- * @brief behavior class correlating names, ids, priorities
+ * @brief behavior class correlating labels, priorities
  *
  * @author Connor Novak
  * @email connor@students.olin.edu

@@ -61,8 +61,8 @@ generate_messages(
 # CATKIN_DEPENDS: catkin_packages dependent projects also need
 # DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES midbrain_sc
+	INCLUDE_DIRS /usr/include/boost/algorithm include
+	LIBRARIES state_controller
 #  DEPENDS system_lib
 	CATKIN_DEPENDS message_runtime geometry_msgs roscpp std_msgs
 )
@@ -74,20 +74,30 @@ catkin_package(
 # Specify additional locations of header files
 # Your package locations should be listed before other locations
 include_directories(
-  ${catkin_INCLUDE_DIRS}
+  include
+	${catkin_INCLUDE_DIRS}
 )
+
+# Declare a C++ library
+add_library(state_controller src/BehaviorLib.cpp )
 
 # Declare a C++ executable
 # With catkin_make all packages are built within a single CMake context
 # The recommended prefix ensures that target names across packages don't collide
 add_executable( MainState src/MainState/MainState.cpp src/MainState/Behavior.cpp)
+add_executable( BehaviorEx src/BehaviorEx/BehaviorEx.cpp)
+add_executable( Teleop src/Teleop/Teleop.cpp src/BehaviorLib.cpp)
 
 # Specify libraries to link a library or executable target against
 target_link_libraries( MainState ${catkin_LIBRARIES} )
+target_link_libraries( BehaviorEx ${catkin_LIBRARIES} )
+target_link_libraries( Teleop ${catkin_LIBRARIES} )
 
 # Add cmake target dependencies of the executable
 # same as for the library above
-add_dependencies( MainState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies( MainState ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} )
+add_dependencies( BehaviorEx ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} )
+add_dependencies( Teleop ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} )
 
 #############
 ## Install ##
