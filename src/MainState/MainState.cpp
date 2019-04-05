@@ -26,9 +26,9 @@ MainState::MainState()
  , command_pub(n.advertise<geometry_msgs::Twist>("cmd_twist", 1))
  , command2_pub(n.advertise<state_controller::Array>("cmd_array",1))
  , curr_state()
- , is_activated(false) {
+ , is_activated(false)
+ , behavior_map(getBehaviorMap(n)) {
    curr_state.data = "safety";
-   updateBehaviors();
 }
 
 void MainState::stateCB(const std_msgs::String& msg) {
@@ -48,12 +48,8 @@ void MainState::behaviorCB(const state_controller::TwistLabeled& msg) {
 */
 
   // Get priority of behavior arg
-  int priority;
-  if (getBehaviorPriority(msg.label, &priority)) {
-      ROS_ERROR("Could not find behavior - is parameter space set up?");
-      return;
-  }
   auto msg_behavior = behavior_map[msg.label.data];
+  auto priority = msg_behavior->getPriority();
 
   // Estop overwrites Teleop overwrites Bn
   if (priority == 0) setState(msg.label);
@@ -70,12 +66,9 @@ void MainState::behavior2CB(const state_controller::ArrayLabeled& msg) {
 /*
 */
   // Get priority of given behavior
-  int priority;
-  if (getBehaviorPriority(msg.label, &priority)) {
-      ROS_ERROR("Could not find behavior - is parameter space set up?");
-      return;
-  }
+  // Get priority of behavior arg
   auto msg_behavior = behavior_map[msg.label.data];
+  auto priority = msg_behavior->getPriority();
 
   // Estop overwrites Teleop overwrites Bn
   if (priority == 0) setState(msg.label);
@@ -103,47 +96,6 @@ void MainState::setState(std_msgs::String state) {
     ROS_INFO("Activating State :%s", state.data.c_str());
     state_pub.publish(curr_state);
   }
-}
-
-void MainState::updateBehaviors() {
-  /*! \brief Updates behavior parameters
-  *
-  * updateBehaviors checks behavior namespace on parameter server,
-  * populates behavior_map with listed behaviors.
-  */
-
-  int i = 0;
-  std::map<std::string, std::string> temp_list;
-
-  if(n.getParam("/behaviors", temp_list)) {
-
-    // Use iterator to populate behavior list with parameter-defined behaviors
-    std::map<std::string, std::string>::iterator iterator = temp_list.begin();
-    while (iterator != temp_list.end()){
-      auto label_str = (iterator->first).c_str();
-      int priority = stoi(iterator->second);
-      ROS_INFO("Found node %s, priority %i", label_str, priority);
-      auto label = std_msgs::String();
-      label.data = label_str;
-      Behavior b(label, priority);
-      behavior_map.insert(std::make_pair(label_str, &b));
-      iterator++;
-    }
-  }
-}
-
-int MainState::getBehaviorPriority(std_msgs::String label, int* priority) {
-  /*! \brief gets priority of behavior with given label
-  *
-  *  param[in] label: label of behavior from which to get priority
-  *  param[in] priority: pointer to int in which to store priority
-  *  return [int]: 0 if behavior in map, 1 otherwise
-  */
-
-  if (behavior_map.find(label.data) != behavior_map.end()) {
-    *priority = behavior_map[label.data]->getPriority();
-    return 0;
-  } else return 1;
 }
 
 int main(int argc, char** argv) {

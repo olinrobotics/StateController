@@ -84,7 +84,7 @@ add_library(state_controller src/BehaviorLib.cpp )
 # Declare a C++ executable
 # With catkin_make all packages are built within a single CMake context
 # The recommended prefix ensures that target names across packages don't collide
-add_executable( MainState src/MainState/MainState.cpp src/MainState/Behavior.cpp)
+add_executable( MainState src/MainState/MainState.cpp src/BehaviorLib.cpp)
 add_executable( BehaviorEx src/BehaviorEx/BehaviorEx.cpp)
 add_executable( Teleop src/Teleop/Teleop.cpp src/BehaviorLib.cpp)
 

@@ -4,10 +4,10 @@
 #include <ros/ros.h>
 #include <state_controller/TwistLabeled.h>
 #include <state_controller/ArrayLabeled.h>
+#include <state_controller/BehaviorLib.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/UInt8.h>
-#include "Behavior.h"
 #include <map>
 
 class MainState{
@@ -34,8 +34,6 @@ private:
   void behavior2CB(const state_controller::ArrayLabeled& msg);
   void setState(std_msgs::String state);
   void addBehavior(std::pair<std::string, std::string> pair);
-  void updateBehaviors();
-  int getBehaviorPriority(std_msgs::String label, int* priority);
 };
 
 #endif //MAIN_STATE_H

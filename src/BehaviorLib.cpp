@@ -59,24 +59,22 @@ bool Behavior::operator==(Behavior b) {
    if (label.data == b.getLabel().data && priority == b.getPriority()) return true;
    else return false;
 }
-/*
-bool operator<(Behavior b) {
+bool Behavior::operator<(Behavior b) {
   if (priority < b.getPriority()) return true;
   else return false;
 }
-bool operator>(Behavior b) {
+bool Behavior::operator>(Behavior b) {
   if (priority > b.getPriority()) return true;
   else return false;
 }
-bool operator>=(Behavior b) {
+bool Behavior::operator>=(Behavior b) {
   if (*this>b || *this == b) return true;
   else return false;
 }
-bool operator<=(Behavior b) {
+bool Behavior::operator<=(Behavior b) {
   if (*this<b || *this == b) return true;
   else return false;
 }
-*/
 
 /* @brief function to obtain vector of current behaviors from ROS param server
  * @param[in] n: node for use in accessing param server
@@ -111,6 +109,35 @@ std::vector<Behavior> getBehaviors(ros::NodeHandle n) {
       behaviors.push_back(b);
     }
   return behaviors;
+}
+
+std::map<std::string, Behavior*>getBehaviorMap(ros::NodeHandle n) {
+  /*! \brief Updates behavior parameters
+  *
+  * updateBehaviors checks behavior namespace on parameter server,
+  * populates behavior_map with listed behaviors.
+  */
+
+  int i = 0;
+  std::map<std::string, std::string> temp_list;
+  std::map<std::string, Behavior*> return_map;
+
+  if(n.getParam("/behaviors", temp_list)) {
+
+    // Use iterator to populate behavior list with parameter-defined behaviors
+    std::map<std::string, std::string>::iterator iterator = temp_list.begin();
+    while (iterator != temp_list.end()){
+      auto label_str = (iterator->first);
+      int priority = stoi(iterator->second);
+      ROS_INFO("Found node %s, priority %i", label_str.c_str(), priority);
+      auto label = std_msgs::String();
+      label.data = label_str;
+      Behavior b(label, priority);
+      return_map.insert(std::make_pair(label_str, &b));
+      iterator++;
+    }
+  }
+  return return_map;
 }
 
 bool compareBehaviorPriority(Behavior b1, Behavior b2) {
