@@ -48,7 +48,7 @@ Teleop::Teleop()
   try {
     curr_behavior = behaviors.at(0);
   } catch (const std::exception& e) {
-    ROS_ERROR("Behaviors not populated");
+    ROS_ERROR("Behaviors not populated - have you loaded behaviors from your .yaml file?");
     ros::shutdown();
   }
 

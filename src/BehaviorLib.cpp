@@ -19,13 +19,20 @@
 
 // Constructor given ROS std_msgs/String as label
 Behavior::Behavior(std_msgs::String label, const int priority=2)
- : label(label), priority(priority) { }
+ : label(label), priority(priority) {
+   twist_message = state_controller::TwistLabeled();
+   twist_message.label = label;
+   array_message = state_controller::ArrayLabeled();
+  }
 
 // Constructor given c++ std_string as label
 Behavior::Behavior(std::string label_raw, const int priority=2)
  : label(), priority(priority) {
    auto label = std_msgs::String();
-   label.data = label.data;
+   label.data = label_raw;
+   twist_message = state_controller::TwistLabeled();
+   twist_message.label = label;
+   array_message = state_controller::ArrayLabeled();
  }
 
 int Behavior::getPriority() {
@@ -138,8 +145,8 @@ std::map<std::string, Behavior*>getBehaviorMap(ros::NodeHandle n) {
       ROS_INFO("Found node %s, priority %i", label_str.c_str(), priority);
       auto label = std_msgs::String();
       label.data = label_str;
-      Behavior b(label, priority);
-      return_map.insert(std::make_pair(label_str, &b));
+      Behavior *b = new Behavior(label, priority);
+      return_map.insert(std::make_pair(label_str, b));
       iterator++;
     }
   }
