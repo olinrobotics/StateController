@@ -8,7 +8,7 @@ Sets up behavior parameters and launches MainState class
 <launch>
 
 <rosparam command="load" file="$(find [your package])/config/[your_behavior_config].yaml" />
-<node pkg="midbrain_sc" type="MainState" name="mainstate" output="screen"/>
+<node pkg="state_controller" type="MainState" name="mainstate" output="screen"/>
 
 add any nodes here that you need to interface with twists
 
@@ -16,7 +16,8 @@ add any nodes here that you need to interface with twists
 -->
 <launch>
 
-<rosparam command="load" file="$(find midbrain_sc)/config/example_behaviors.yaml" />
-<node pkg="midbrain_sc" type="MainState" name="mainstate" output="screen"/>
+<rosparam command="load" file="$(find state_controller)/config/example_behaviors.yaml" />
+<node pkg="state_controller" type="MainState" name="mainstate" output="screen"/>
+<include file="$(find state_controller)/launch/teleop.launch"/>
 
 </launch>

@@ -1,3 +1,3 @@
 std_msgs/Header header
-uint8 label
+std_msgs/String label
 geometry_msgs/Twist twist
