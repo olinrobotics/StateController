@@ -33,6 +33,7 @@ private:
   void behaviorCBTwist(const state_controller::TwistLabeled& msg);
   void behaviorCBArray(const state_controller::ArrayLabeled& msg);
   void setState(std_msgs::String state);
+  void setState(std::string state);
   void addBehavior(std::pair<std::string, std::string> pair);
 };
 

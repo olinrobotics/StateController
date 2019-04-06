@@ -28,26 +28,31 @@ MainState::MainState()
  , curr_state()
  , is_activated(false)
  , behavior_map(getBehaviorMap(n)) {
-   curr_state.data = "safety";
+   setState("safety");
 }
 
 void MainState::stateCB(const std_msgs::String& msg) {
-  // Callback for joy_state, updates and publishes curr_state
-    if (msg.data != curr_state.data) setState(msg);
+  // Callback for /cmd_state, updates and publishes curr_state
+  if (msg.data != curr_state.data) setState(msg);
 }
 
 void MainState::activateCB(const std_msgs::Bool& msg) {
-  // Callback for joy_active, updates activated state
-  is_activated = msg.data;
+  // Callback for /cmd_activate, updates activated state if switch
+  if (is_activated != msg.data) is_activated = msg.data;
+  else {
+    if (is_activated) ROS_WARN("Tractor is already activated");
+    else ROS_WARN("Tractor is already disactivated");
+    return;
+  }
   if (is_activated) ROS_INFO("Activating Tractor");
   else {ROS_INFO("Disactivating Tractor");}
+  return;
 }
 
 void MainState::behaviorCBTwist(const state_controller::TwistLabeled& msg) {
-  /*
-*/
+  // Publishes Twist msg if behavior is currently activated
 
-  // Get priority of behavior arg
+  // Get priority of behavior sending msg
   auto msg_behavior = behavior_map[msg.label.data];
   auto priority = msg_behavior->getPriority();
 
@@ -63,10 +68,9 @@ void MainState::behaviorCBTwist(const state_controller::TwistLabeled& msg) {
 }
 
 void MainState::behaviorCBArray(const state_controller::ArrayLabeled& msg) {
-/*
-*/
-  // Get priority of given behavior
-  // Get priority of behavior arg
+  // Publishes msg if behavior is currently activated
+
+  // Get priority of behavior sending msg
   auto msg_behavior = behavior_map[msg.label.data];
   auto priority = msg_behavior->getPriority();
 
@@ -76,25 +80,44 @@ void MainState::behaviorCBArray(const state_controller::ArrayLabeled& msg) {
 
   // Update behavior, publish message
   msg_behavior->setMessage(msg);
-  state_controller::Array messageToBePublished;
+  state_controller::Array msg_pub;
   if (msg.label.data == curr_state.data) {
-    messageToBePublished.data = msg.data;
-    command_array_pub.publish(messageToBePublished);
+    msg_pub.data = msg.data;
+    command_array_pub.publish(msg_pub);
   }
 }
 
 void MainState::setState(std_msgs::String state) {
   /*! \brief Updates state with new state.
   *
-  * Note: this takes in a ROS string
-  * setState updates the current state with a given state, publishes an info
-  * message, and publishes the new state to the topic /curr_state
+  * @param[in] ROS std_msgs/String, state label
+  * setState checks for existence of state, then
+  * updates current state with given state, logs info
+  * message, publishes new state to /state
   */
-
   if (curr_state.data != state.data) {
-    curr_state = state;
-    ROS_INFO("Activating State %s", state.data.c_str());
-    state_pub.publish(curr_state);
+    if (behavior_map.find(state.data) != behavior_map.end()) {
+      curr_state = state;
+      ROS_INFO("Activating State %s", state.data.c_str());
+      state_pub.publish(curr_state);
+    } else ROS_WARN("State %s is not loaded to state controller", state.data.c_str());
+  }
+}
+
+void MainState::setState(std::string state) {
+  /*! \brief Updates state with new state.
+  *
+  * @param[in] string, state label
+  * setState checks for existence of state, then
+  * updates current state with given state, logs info
+  * message, publishes new state to /state
+  */
+  if (curr_state.data != state) {
+    if (behavior_map.find(state) != behavior_map.end()) {
+      curr_state.data = state;
+      ROS_INFO("Activating State %s", state.c_str());
+      state_pub.publish(curr_state);
+    } else ROS_WARN("State %s is not loaded to state controller", state.c_str());
   }
 }
 
