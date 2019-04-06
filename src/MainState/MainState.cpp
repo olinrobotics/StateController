@@ -20,11 +20,11 @@ MainState::MainState()
  : rate(ros::Rate(2))
  , state_sub(n.subscribe("/state_controller/cmd_state", 1, &MainState::MainState::stateCB, this))
  , activate_sub(n.subscribe("/state_controller/cmd_activate", 1, &MainState::MainState::activateCB, this))
- , behavior_sub(n.subscribe("/state_controller/cmd_behavior", 10, &MainState::MainState::behaviorCB, this))
- , behavior2_sub(n.subscribe("/state_controller/cmd_behavior2", 10, &MainState::MainState::behavior2CB, this))
+ , behavior_twist_sub(n.subscribe("/state_controller/cmd_behavior_twist", 10, &MainState::MainState::behaviorCBTwist, this))
+ , behavior_array_sub(n.subscribe("/state_controller/cmd_behavior_array", 10, &MainState::MainState::behaviorCBArray, this))
  , state_pub(n.advertise<std_msgs::String>("state", 1))
- , command_pub(n.advertise<geometry_msgs::Twist>("cmd_twist", 1))
- , command2_pub(n.advertise<state_controller::Array>("cmd_array",1))
+ , command_twist_pub(n.advertise<geometry_msgs::Twist>("cmd_twist", 1))
+ , command_array_pub(n.advertise<state_controller::Array>("cmd_array",1))
  , curr_state()
  , is_activated(false)
  , behavior_map(getBehaviorMap(n)) {
@@ -43,7 +43,7 @@ void MainState::activateCB(const std_msgs::Bool& msg) {
   else {ROS_INFO("Disactivating Tractor");}
 }
 
-void MainState::behaviorCB(const state_controller::TwistLabeled& msg) {
+void MainState::behaviorCBTwist(const state_controller::TwistLabeled& msg) {
   /*
 */
 
@@ -58,11 +58,11 @@ void MainState::behaviorCB(const state_controller::TwistLabeled& msg) {
   // Update behavior, publish message
   msg_behavior->setMessage(msg);
   if (msg.label.data == curr_state.data) {
-    command_pub.publish(msg.twist);
+    command_twist_pub.publish(msg.twist);
   }
 }
 
-void MainState::behavior2CB(const state_controller::ArrayLabeled& msg) {
+void MainState::behaviorCBArray(const state_controller::ArrayLabeled& msg) {
 /*
 */
   // Get priority of given behavior
@@ -79,7 +79,7 @@ void MainState::behavior2CB(const state_controller::ArrayLabeled& msg) {
   state_controller::Array messageToBePublished;
   if (msg.label.data == curr_state.data) {
     messageToBePublished.data = msg.data;
-    command2_pub.publish(messageToBePublished);
+    command_array_pub.publish(messageToBePublished);
   }
 }
 

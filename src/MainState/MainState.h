@@ -17,11 +17,11 @@ private:
   ros::NodeHandle n;
   ros::Subscriber state_sub;
   ros::Subscriber activate_sub;
-  ros::Subscriber behavior_sub;
-  ros::Subscriber behavior2_sub;
+  ros::Subscriber behavior_twist_sub;
+  ros::Subscriber behavior_array_sub;
   ros::Publisher state_pub;
-  ros::Publisher command_pub;
-  ros::Publisher command2_pub;
+  ros::Publisher command_twist_pub;
+  ros::Publisher command_array_pub;
   ros::Rate rate;
   std_msgs::String curr_state;
 
@@ -30,8 +30,8 @@ private:
 
   void stateCB(const std_msgs::String& msg);
   void activateCB(const std_msgs::Bool& msg);
-  void behaviorCB(const state_controller::TwistLabeled& msg);
-  void behavior2CB(const state_controller::ArrayLabeled& msg);
+  void behaviorCBTwist(const state_controller::TwistLabeled& msg);
+  void behaviorCBArray(const state_controller::ArrayLabeled& msg);
   void setState(std_msgs::String state);
   void addBehavior(std::pair<std::string, std::string> pair);
 };
