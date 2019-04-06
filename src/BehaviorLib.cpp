@@ -28,7 +28,7 @@ Behavior::Behavior(std_msgs::String label, const int priority=2)
 // Constructor given c++ std_string as label
 Behavior::Behavior(std::string label_raw, const int priority=2)
  : label(), priority(priority) {
-   auto label = std_msgs::String();
+   label = std_msgs::String();
    label.data = label_raw;
    twist_message = state_controller::TwistLabeled();
    twist_message.label = label;
@@ -106,7 +106,6 @@ int getBehaviorVector(ros::NodeHandle n, std::vector<Behavior>& v) {
                  return param.substr(0, 11) == "/behaviors/";
                });
   filteredParams.resize(std::distance(filteredParams.begin(),it));  // shrink container to new size
-
   try {
     std::string tmp;
     for(std::string param : filteredParams)
