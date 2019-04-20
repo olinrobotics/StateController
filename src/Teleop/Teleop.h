@@ -51,8 +51,8 @@ private:
   bool activateButtonFlag;
   bool behaviorAxisFlag;
 
-  int priorHitchPositionZ = 0;
-  int priorHitchOrientationY = 0;
+  float priorHitchPositionZ = 0;
+  float priorHitchOrientationY = 0;
 
 };
 

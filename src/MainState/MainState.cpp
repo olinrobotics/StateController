@@ -10,6 +10,7 @@
 #include "MainState.h"
 #include <ros/console.h>  // Used for logging
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
 #include <std_msgs/String.h>
 #include <vector>
 
@@ -24,7 +25,7 @@ MainState::MainState()
  , behavior_hitch_sub(n.subscribe("/state_controller/cmd_behavior_hitch", 10, &MainState::MainState::behaviorCBHitch, this))
  , state_pub(n.advertise<std_msgs::String>("state", 1))
  , command_twist_pub(n.advertise<geometry_msgs::Twist>("cmd_twist", 1))
- , command_hitch_pub(n.advertise<state_controller::PoseLabeled>("cmd_hitch",1))
+ , command_hitch_pub(n.advertise<geometry_msgs::Pose>("cmd_hitch",1))
  , curr_state()
  , is_activated(false)
  , behavior_map(getBehaviorMap(n)) {

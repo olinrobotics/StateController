@@ -56,6 +56,9 @@ Teleop::Teleop()
   drive_msg.label = std_msgs::String();
   drive_msg.label.data = "teleop";
 
+  hitch_msg.label = std_msgs::String();
+  hitch_msg.label.data = "teleop";
+
   n.param<std::string>("controllerType", controllerType, "gamepad");
   if (controllerType == "gamepad"){
     activateButton = 0;
@@ -170,11 +173,15 @@ int Teleop::computeZPosition(int up_axis, int down_axis) {
      // If both axes are pressed, do nothing
      return priorHitchPositionZ;
    } else if (up_axis < 1) {
-     // Increment height by 0.1
-     return priorHitchPositionZ + 0.1;
+     // Increment height by 1
+     priorHitchPositionZ = priorHitchPositionZ + 0.1;
+     return priorHitchPositionZ;
+   } else if (down_axis < 1){
+     // Decrement height by 1
+     priorHitchPositionZ = priorHitchPositionZ - 0.1;
+     return priorHitchPositionZ;
    } else {
-     // Decrement height by 0.1
-     return priorHitchPositionZ - 0.1;
+     return priorHitchPositionZ;
    }
 }
 
@@ -184,15 +191,19 @@ int Teleop::computeYOrientation(int up_button, int down_button) {
    * @param[in] up_button = right trigger button value
                 down_button = left trigger button value
    */
-   if (up_button == 1 && down_button ==  1) {
+   if (up_button == 1 && down_button == 1) {
      // If both buttons are pressed, do nothing
      return priorHitchOrientationY;
    } else if (up_button == 1) {
-     // Increment angle by 0.1
-     return priorHitchOrientationY + 0.1;
+     // Increment angle by 5
+     priorHitchOrientationY = priorHitchOrientationY + 5;
+     return priorHitchOrientationY;
+   } else if (down_button == 1) {
+     // Decrement angle by 5
+     priorHitchOrientationY = priorHitchOrientationY - 5;
+     return priorHitchOrientationY;
    } else {
-     // Decrement angle by 0.1
-     return priorHitchOrientationY - 0.1;
+     return priorHitchOrientationY;
    }
 }
 
