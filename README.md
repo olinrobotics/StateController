@@ -17,4 +17,4 @@ _graphic created using_ `rosrun rqt_graph rqt_graph`
     - `/state`: Outputs current tractor state (String)
 
 # Writing a Behavior Node
-See Wiki Page ([link](https://github.com/olinrobotics/state_controller/wiki/Tutorials-WritingBehaviorNode(c--)))
+See Wiki Page ([link](https://github.com/olinrobotics/state_controller/wiki/Tutorial:WritingBehaviorNode(Cpp)))
