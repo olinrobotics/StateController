@@ -18,12 +18,17 @@ find_package(catkin REQUIRED COMPONENTS
 ## Declare ROS messages, services and actions ##
 ################################################
 
+## Generate messages in the 'msg' folder
+add_message_files(
+	FILES
+  PoseLabeled.msg
+)
+
 # Generate messages in the 'msg' folder
 add_message_files(
 	FILES
 	TwistLabeled.msg
-	ArrayLabeled.msg
-	Array.msg
+  PoseLabeled.msg
 )
 
 ## Generate services in the 'srv' folder

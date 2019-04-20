@@ -15,14 +15,14 @@
 #include <std_msgs/String.h>
 #include <state_controller/BehaviorLib.h>
 #include <state_controller/TwistLabeled.h>
-#include <state_controller/ArrayLabeled.h>
+#include <state_controller/PoseLabeled.h>
 
 // Constructor given ROS std_msgs/String as label
 Behavior::Behavior(std_msgs::String label, const int priority=2)
  : label(label), priority(priority) {
    twist_message = state_controller::TwistLabeled();
    twist_message.label = label;
-   array_message = state_controller::ArrayLabeled();
+   hitch_message = state_controller::PoseLabeled();
   }
 
 // Constructor given c++ std_string as label
@@ -32,7 +32,7 @@ Behavior::Behavior(std::string label_raw, const int priority=2)
    label.data = label_raw;
    twist_message = state_controller::TwistLabeled();
    twist_message.label = label;
-   array_message = state_controller::ArrayLabeled();
+   hitch_message = state_controller::PoseLabeled();
  }
 
 int Behavior::getPriority() {
@@ -47,8 +47,8 @@ state_controller::TwistLabeled Behavior::getTwistMessage() {
   return twist_message;
 }
 
-state_controller::ArrayLabeled Behavior::getArrayMessage() {
-  return array_message;
+state_controller::PoseLabeled Behavior::getHitchMessage() {
+  return hitch_message;
 }
 
 void Behavior::setMessage(state_controller::TwistLabeled msg) {
@@ -56,9 +56,9 @@ void Behavior::setMessage(state_controller::TwistLabeled msg) {
   twist_message = msg;
 }
 
-void Behavior::setMessage(state_controller::ArrayLabeled msg) {
+void Behavior::setMessage(state_controller::PoseLabeled msg) {
   //TODO(connor@students): Check that label is equal to id
-  array_message = msg;
+  hitch_message = msg;
 }
 
 // Overload comparison operators to compare priorities
@@ -66,7 +66,7 @@ bool Behavior::operator= (Behavior b) {
   label = b.getLabel();
   priority = b.getPriority();
   twist_message = b.getTwistMessage();
-  array_message = b.getArrayMessage();
+  hitch_message = b.getHitchMessage();
 }
 bool Behavior::operator==(Behavior b) {
    if (label.data == b.getLabel().data && priority == b.getPriority()) return true;

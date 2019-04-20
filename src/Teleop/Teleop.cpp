@@ -30,6 +30,7 @@ Teleop::Teleop()
 , joystick_sub(n.subscribe("/joy", 10, &Teleop::joyCB, this))
 , activate_pub(n.advertise<std_msgs::Bool>("/state_controller/cmd_activate", 1))
 , drivemsg_pub(n.advertise<state_controller::TwistLabeled>("/state_controller/cmd_behavior_twist", 1))
+, hitchmsg_pub(n.advertise<state_controller::PoseLabeled>("/state_controller/cmd_behavior_hitch", 1))
 , softestop_pub(n.advertise<std_msgs::Bool>("/softestop", 1))
 , state_pub(n.advertise<std_msgs::String>("/state_controller/cmd_state", 1))
 , estop(false)
@@ -146,8 +147,53 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
         drive_msg.twist.linear.x =  joy->axes[1];
         drivemsg_pub.publish(drive_msg);
       }
+
+      // generate and send hitch message
+      // TODO: check for unique message
+      hitch_msg.pose.position.z = computeZPosition(joy->axes[5], joy->axes[2]);
+      hitch_msg.pose.orientation.y = computeYOrientation(joy->buttons[5], joy->buttons[4]);
+
+      hitchmsg_pub.publish(hitch_msg);
     }
   }
+}
+
+int Teleop::computeZPosition(int up_axis, int down_axis) {
+  /*
+   * @brief computes new Z position based on trigger axes
+   * @param[in] up_axis = right trigger value
+                down_axis = left trigger value
+   */
+
+   //TODO: Add limits
+   if (up_axis < 1 && down_axis < 1) {
+     // If both axes are pressed, do nothing
+     return priorHitchPositionZ;
+   } else if (up_axis < 1) {
+     // Increment height by 0.1
+     return priorHitchPositionZ + 0.1;
+   } else {
+     // Decrement height by 0.1
+     return priorHitchPositionZ - 0.1;
+   }
+}
+
+int Teleop::computeYOrientation(int up_button, int down_button) {
+  /*
+   * @brief computes new Z orientation based on trigger buttons
+   * @param[in] up_button = right trigger button value
+                down_button = left trigger button value
+   */
+   if (up_button == 1 && down_button ==  1) {
+     // If both buttons are pressed, do nothing
+     return priorHitchOrientationY;
+   } else if (up_button == 1) {
+     // Increment angle by 0.1
+     return priorHitchOrientationY + 0.1;
+   } else {
+     // Decrement angle by 0.1
+     return priorHitchOrientationY - 0.1;
+   }
 }
 
 void Teleop::softestop(bool stop){

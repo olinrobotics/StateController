@@ -24,12 +24,14 @@ private:
   ros::Subscriber joystick_sub;
   ros::Publisher activate_pub;
   ros::Publisher drivemsg_pub;
+  ros::Publisher hitchmsg_pub;
   ros::Publisher softestop_pub;
   ros::Publisher state_pub;
   std_msgs::Bool stop_msg;
   std_msgs::Bool activate_msg;
   Behavior curr_behavior;
   state_controller::TwistLabeled drive_msg;
+  state_controller::PoseLabeled hitch_msg;
   std::vector<Behavior> behaviors;
 
   void joyCB(const sensor_msgs::Joy::ConstPtr &joy);
@@ -37,6 +39,8 @@ private:
   void activate(bool aut);
   void state(Behavior behavior);
   int incrementState(float dir);
+  int computeZPosition(int up_axis, int down_axis);
+  int computeYOrientation(int up_button, int down_button);
   std::string controllerType;
   bool estop;
   bool isActivated;
@@ -46,6 +50,9 @@ private:
   bool estopButtonFlag;
   bool activateButtonFlag;
   bool behaviorAxisFlag;
+
+  int priorHitchPositionZ = 0;
+  int priorHitchOrientationY = 0;
 
 };
 
