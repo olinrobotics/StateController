@@ -168,43 +168,55 @@ float Teleop::computeZPosition(int up_axis, int down_axis) {
                 down_axis = left trigger value
    */
 
-   //TODO: Add limits
    if (up_axis < 1 && down_axis < 1) {
      // If both axes are pressed, do nothing
-     return priorHitchPositionZ;
    } else if (up_axis < 1) {
      // Increment height by 1
      priorHitchPositionZ = priorHitchPositionZ + 0.001;
-     return priorHitchPositionZ;
    } else if (down_axis < 1){
      // Decrement height by 1
      priorHitchPositionZ = priorHitchPositionZ - 0.001;
-     return priorHitchPositionZ;
    } else {
-     return priorHitchPositionZ;
+     // Do nothing
    }
+
+   // Set travel limits between -0.3 and 0.3
+   if (priorHitchPositionZ > 0.3) {
+     priorHitchPositionZ = 0.3;
+   } else if (priorHitchPositionZ < -0.3){
+     priorHitchPositionZ = -0.3;
+   }
+
+   return priorHitchPositionZ;
 }
 
 float Teleop::computeYOrientation(int up_button, int down_button) {
   /*
-   * @brief computes new Z orientation based on trigger buttons
+   * @brief computes new Y orientation based on trigger buttons in degrees
    * @param[in] up_button = right trigger button value
                 down_button = left trigger button value
    */
+
    if (up_button == 1 && down_button == 1) {
      // If both buttons are pressed, do nothing
-     return priorHitchOrientationY;
    } else if (up_button == 1) {
-     // Increment angle by 5
+     // Increment angle by 5 degrees
      priorHitchOrientationY = priorHitchOrientationY + 5;
-     return priorHitchOrientationY;
    } else if (down_button == 1) {
-     // Decrement angle by 5
+     // Decrement angle by 5 degrees
      priorHitchOrientationY = priorHitchOrientationY - 5;
-     return priorHitchOrientationY;
    } else {
-     return priorHitchOrientationY;
+     // Do nothing
    }
+
+   // Set travel limits between -45 and 45
+   if (priorHitchOrientationY > 45) {
+     priorHitchOrientationY = 45;
+   } else if (priorHitchOrientationY < -45){
+     priorHitchOrientationY = -45;
+   }
+
+   return priorHitchOrientationY;
 }
 
 void Teleop::softestop(bool stop){
