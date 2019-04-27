@@ -13,7 +13,7 @@ _graphic created using_ `rosrun rqt_graph rqt_graph`
     - `/cmd_behavior`: Receives control messages (TwistLabeled)
   - Publishers
     - `/cmd_twist`: Outputs control message corresponding to current behavior (Twist)
-    - `/cmd_array`: Outputs control message corresponding to current behavior (Array)
+    - `/cmd_hitch`: Outputs control message corresponding to current behavior for hitch (Pose) - use z position value for height (meters off of ground, limited to -0.3 to 0.3), use y orientation for angle (degrees, limited to -45 to 45)
     - `/state`: Outputs current tractor state (String)
 
 # Writing a Behavior Node
