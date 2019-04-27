@@ -10,9 +10,10 @@
 #include "MainState.h"
 #include <ros/console.h>  // Used for logging
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Pose.h>
 #include <std_msgs/String.h>
 #include <vector>
-#include <state_controller/Array.h>
+
 #include <typeinfo>
 
 
@@ -21,10 +22,10 @@ MainState::MainState()
  , state_sub(n.subscribe("/state_controller/cmd_state", 1, &MainState::MainState::stateCB, this))
  , activate_sub(n.subscribe("/state_controller/cmd_activate", 1, &MainState::MainState::activateCB, this))
  , behavior_twist_sub(n.subscribe("/state_controller/cmd_behavior_twist", 10, &MainState::MainState::behaviorCBTwist, this))
- , behavior_array_sub(n.subscribe("/state_controller/cmd_behavior_array", 10, &MainState::MainState::behaviorCBArray, this))
+ , behavior_hitch_sub(n.subscribe("/state_controller/cmd_behavior_hitch", 10, &MainState::MainState::behaviorCBHitch, this))
  , state_pub(n.advertise<std_msgs::String>("state", 1))
  , command_twist_pub(n.advertise<geometry_msgs::Twist>("cmd_twist", 1))
- , command_array_pub(n.advertise<state_controller::Array>("cmd_array",1))
+ , command_hitch_pub(n.advertise<geometry_msgs::Pose>("cmd_hitch",1))
  , curr_state()
  , is_activated(false)
  , behavior_map(getBehaviorMap(n)) {
@@ -67,7 +68,7 @@ void MainState::behaviorCBTwist(const state_controller::TwistLabeled& msg) {
   }
 }
 
-void MainState::behaviorCBArray(const state_controller::ArrayLabeled& msg) {
+void MainState::behaviorCBHitch(const state_controller::PoseLabeled& msg) {
   // Publishes msg if behavior is currently activated
 
   // Get priority of behavior sending msg
@@ -77,13 +78,11 @@ void MainState::behaviorCBArray(const state_controller::ArrayLabeled& msg) {
   // Estop overwrites Teleop overwrites Bn
   if (priority == 0) setState(msg.label);
   else if (priority == 1 && behavior_map[curr_state.data]->getPriority() != 0) setState(msg.label);
-
+  //
   // Update behavior, publish message
   msg_behavior->setMessage(msg);
-  state_controller::Array msg_pub;
   if (msg.label.data == curr_state.data) {
-    msg_pub.data = msg.data;
-    command_array_pub.publish(msg_pub);
+    command_hitch_pub.publish(msg.pose);
   }
 }
 
