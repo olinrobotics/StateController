@@ -161,7 +161,7 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
   }
 }
 
-int Teleop::computeZPosition(int up_axis, int down_axis) {
+float Teleop::computeZPosition(int up_axis, int down_axis) {
   /*
    * @brief computes new Z position based on trigger axes
    * @param[in] up_axis = right trigger value
@@ -174,18 +174,18 @@ int Teleop::computeZPosition(int up_axis, int down_axis) {
      return priorHitchPositionZ;
    } else if (up_axis < 1) {
      // Increment height by 1
-     priorHitchPositionZ = priorHitchPositionZ + 0.1;
+     priorHitchPositionZ = priorHitchPositionZ + 0.001;
      return priorHitchPositionZ;
    } else if (down_axis < 1){
      // Decrement height by 1
-     priorHitchPositionZ = priorHitchPositionZ - 0.1;
+     priorHitchPositionZ = priorHitchPositionZ - 0.001;
      return priorHitchPositionZ;
    } else {
      return priorHitchPositionZ;
    }
 }
 
-int Teleop::computeYOrientation(int up_button, int down_button) {
+float Teleop::computeYOrientation(int up_button, int down_button) {
   /*
    * @brief computes new Z orientation based on trigger buttons
    * @param[in] up_button = right trigger button value

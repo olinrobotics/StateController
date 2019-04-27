@@ -39,8 +39,8 @@ private:
   void activate(bool aut);
   void state(Behavior behavior);
   int incrementState(float dir);
-  int computeZPosition(int up_axis, int down_axis);
-  int computeYOrientation(int up_button, int down_button);
+  float computeZPosition(int up_axis, int down_axis);
+  float computeYOrientation(int up_button, int down_button);
   std::string controllerType;
   bool estop;
   bool isActivated;
