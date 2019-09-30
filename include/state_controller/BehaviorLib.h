@@ -6,7 +6,7 @@
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <state_controller/TwistLabeled.h>
-#include <state_controller/ArrayLabeled.h>
+#include <state_controller/PoseLabeled.h>
 
 class Behavior {
   public:
@@ -17,9 +17,9 @@ class Behavior {
     int getPriority();
     std_msgs::String getLabel();
     state_controller::TwistLabeled getTwistMessage();
-    state_controller::ArrayLabeled getArrayMessage();
+    state_controller::PoseLabeled getHitchMessage();
     void setMessage(state_controller::TwistLabeled msg);
-    void setMessage(state_controller::ArrayLabeled msg);
+    void setMessage(state_controller::PoseLabeled msg);
 
     // Overloads
     bool operator==(Behavior b);
@@ -35,7 +35,7 @@ class Behavior {
     int priority;
     std_msgs::String label;
     state_controller::TwistLabeled twist_message;
-    state_controller::ArrayLabeled array_message;
+    state_controller::PoseLabeled hitch_message;
 
 };
 

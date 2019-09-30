@@ -22,8 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
 	FILES
 	TwistLabeled.msg
-	ArrayLabeled.msg
-	Array.msg
+  PoseLabeled.msg
 )
 
 ## Generate services in the 'srv' folder
