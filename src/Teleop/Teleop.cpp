@@ -151,11 +151,13 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
         drivemsg_pub.publish(drive_msg);
       }
       // // generate and send hitch message
-      // // TODO: check for unique message
-      hitch_msg.pose.position.z = computeZPosition(joy->axes[5], joy->axes[2]);
-      hitch_msg.pose.orientation.y = computeYOrientation(joy->buttons[5], joy->buttons[4]);
-      //
-      hitchmsg_pub.publish(hitch_msg);
+      if (hitch_msg.pose.position.z != computeZPosition(joy->axes[5], joy->axes[2]) ||
+          hitch_msg.pose.orientation.y != computeYOrientation(joy->buttons[5], joy->buttons[4])) {
+        hitch_msg.pose.position.z = computeZPosition(joy->axes[5], joy->axes[2]);
+        hitch_msg.pose.orientation.y = computeYOrientation(joy->buttons[5], joy->buttons[4]);
+        hitchmsg_pub.publish(hitch_msg);
+
+      }
     }
   }
 }
