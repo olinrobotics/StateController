@@ -187,7 +187,7 @@ float Teleop::computeZPosition(float up_axis, float down_axis) {
 
  float Teleop::computeYOrientation(int up_button, int down_button) {
   /*
-   * @brief computes new Z orientation based on trigger buttons
+   * @brief computes new Y orientation based on trigger buttons
    * @param[in] up_button = right trigger button value
                 down_button = left trigger button value
    */
