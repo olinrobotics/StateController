@@ -30,6 +30,7 @@ Teleop::Teleop()
 , joystick_sub(n.subscribe("/joy", 10, &Teleop::joyCB, this))
 , activate_pub(n.advertise<std_msgs::Bool>("/state_controller/cmd_activate", 1))
 , drivemsg_pub(n.advertise<state_controller::TwistLabeled>("/state_controller/cmd_behavior_twist", 1))
+, hitchmsg_pub(n.advertise<state_controller::PoseLabeled>("/state_controller/cmd_behavior_hitch", 1))
 , softestop_pub(n.advertise<std_msgs::Bool>("/softestop", 1))
 , state_pub(n.advertise<std_msgs::String>("/state_controller/cmd_state", 1))
 , estop(false)
@@ -54,6 +55,9 @@ Teleop::Teleop()
 
   drive_msg.label = std_msgs::String();
   drive_msg.label.data = "teleop";
+
+  hitch_msg.label = std_msgs::String();
+  hitch_msg.label.data = "teleop";
 
   n.param<std::string>("controllerType", controllerType, "gamepad");
   if (controllerType == "gamepad"){
@@ -146,9 +150,66 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
         drive_msg.twist.linear.x =  joy->axes[1];
         drivemsg_pub.publish(drive_msg);
       }
+      // // generate and send hitch message
+      if (hitch_msg.pose.position.z != computeZPosition(joy->axes[5], joy->axes[2]) ||
+          hitch_msg.pose.orientation.y != computeYOrientation(joy->buttons[5], joy->buttons[4])) {
+        hitch_msg.pose.position.z = computeZPosition(joy->axes[5], joy->axes[2]);
+        hitch_msg.pose.orientation.y = computeYOrientation(joy->buttons[5], joy->buttons[4]);
+        hitchmsg_pub.publish(hitch_msg);
+
+      }
     }
   }
 }
+
+float Teleop::computeZPosition(float up_axis, float down_axis) {
+  /*
+   * @brief computes new Z position based on trigger axes
+   * @param[in] up_axis = right trigger value
+                down_axis = left trigger value
+   */
+
+   // TODO: Add limits and raise ros warning if they're hit
+   if (up_axis < 1 && down_axis < 1) {
+     // If both axes are pressed, do nothing
+     return priorHitchPositionZ;
+   } else if (up_axis < 1) {
+     // Increment height by 0.1
+     priorHitchPositionZ = priorHitchPositionZ + 0.0005;
+     return priorHitchPositionZ;
+   } else if (down_axis < 1){
+     // Decrement height by 0.1
+     priorHitchPositionZ = priorHitchPositionZ - 0.0005;
+     return priorHitchPositionZ;
+   } else{
+     // If neither are pressed, do nothing
+     return priorHitchPositionZ;
+   }
+}
+
+ float Teleop::computeYOrientation(int up_button, int down_button) {
+  /*
+   * @brief computes new Y orientation based on trigger buttons
+   * @param[in] up_button = right trigger button value
+                down_button = left trigger button value
+   */
+   if (up_button == 1 && down_button ==  1) {
+     // If both buttons are pressed, do nothing
+     return priorHitchOrientationY;
+   } else if (up_button == 1) {
+     // Increment angle by 0.1
+     priorHitchOrientationY = priorHitchOrientationY + 0.0005;
+     return priorHitchOrientationY;
+   } else if (down_button == 1) {
+     // Decrement angle by 0.1
+     priorHitchOrientationY = priorHitchOrientationY - 0.0005;
+     return priorHitchOrientationY;
+   } else {
+     // If neither buttons are pressed, do nothing
+     return priorHitchOrientationY;
+   }
+}
+
 
 void Teleop::softestop(bool stop){
   /*
