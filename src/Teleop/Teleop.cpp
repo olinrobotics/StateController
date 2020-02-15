@@ -12,6 +12,7 @@
  */
 
 #include "Teleop.h"
+#include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
 #include <state_controller/BehaviorLib.h>
 
@@ -27,13 +28,13 @@
  */
 Teleop::Teleop()
 : n("~")
-, joystick_sub(n.subscribe("/joy", 10, &Teleop::joyCB, this))
-, activate_pub(n.advertise<std_msgs::Bool>("/state_controller/cmd_activate", 1))
-, drivemsg_pub(n.advertise<state_controller::TwistLabeled>("/state_controller/cmd_behavior_twist", 1))
-, hitchmsg_pub(n.advertise<state_controller::PoseLabeled>("/state_controller/cmd_behavior_hitch", 1))
-, softestop_pub(n.advertise<std_msgs::Bool>("/softestop", 1))
-, state_pub(n.advertise<std_msgs::String>("/state_controller/cmd_state", 1))
-, userinput_pub(n.advertise<std_msgs::String>("/user_input", 1))
+, joystickSub(n.subscribe("/joy", 10, &Teleop::joyCB, this))
+, activatePub(n.advertise<std_msgs::Bool>("/state_controller/cmd_activate", 1))
+, driveMsgPub(n.advertise<state_controller::TwistLabeled>("/state_controller/cmd_behavior_twist", 1))
+, hitchMsgPub(n.advertise<state_controller::PoseLabeled>("/state_controller/cmd_behavior_hitch", 1))
+, softEstopPub(n.advertise<std_msgs::Bool>("/softestop", 1))
+, statePub(n.advertise<std_msgs::String>("/state_controller/cmd_state", 1))
+, userInputPub(n.advertise<std_msgs::String>("/user_input", 1))
 , estop(false)
 , isActivated(false)
 , activateButton(0)
@@ -43,23 +44,23 @@ Teleop::Teleop()
 , estopButtonFlag(false)
 , activateButtonFlag(false)
 , behaviorAxisFlag(false)
-, curr_behavior("empty", 2)
+, currBehavior("empty", 2)
 {
   // Init and sort behavior list, current behavior
   getBehaviorVector(n, behaviors);
   sort(behaviors.begin(), behaviors.end());
   try {
-    curr_behavior = behaviors.at(0);
+    currBehavior = behaviors.at(0);
   } catch (const std::exception& e) {
     ROS_ERROR("Behaviors not populated - have you loaded behaviors from your .yaml file?");
     ros::shutdown();
   }
 
-  drive_msg.label = std_msgs::String();
-  drive_msg.label.data = "teleop";
+  driveMsg.label = std_msgs::String();
+  driveMsg.label.data = "teleop";
 
-  hitch_msg.label = std_msgs::String();
-  hitch_msg.label.data = "teleop";
+  hitchMsg.label = std_msgs::String();
+  hitchMsg.label.data = "teleop";
 
   n.param<std::string>("controllerType", controllerType, "gamepad");
   if (controllerType == "gamepad"){
@@ -83,14 +84,14 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
    * Runs upon each receipt of msg from /joy. Activates, disactivates,
    and estops based on button inputs. Changes state based on axis inputs.
    Passes through Twist messages based on joystick inputs unless estopped
-   or disactivated, or message is same as message stored in drive_msg attr.
+   or disactivated, or message is same as message stored in driveMsg attr.
    *
    * @param[in] joy Message read from /joy topic
    */
   //check for estop
   if(joy->buttons[estopButton] && !estop && !estopButtonFlag){
     activate(false);
-    softestop(true);
+    softEstop(true);
     estopButtonFlag = true;
     return;
   }
@@ -102,7 +103,7 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
   }
   //check for un-estop
   if(joy->buttons[estopButton] && estop && !estopButtonFlag){
-    softestop(false);
+    softEstop(false);
     estopButtonFlag = true;
   }
   //check for un-estop button release
@@ -121,7 +122,7 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
   }
 
   //check if not currently estopped
-  if(!stop_msg.data){
+  if(!stopMsg.data){
 
     //check for statechange
     if(joy->axes[behaviorAxis] && !behaviorAxisFlag){
@@ -158,18 +159,18 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
     if (isActivated){
 
       // generate and send twist message if unique
-      if (drive_msg.twist.angular.z != joy->axes[0]
-       || drive_msg.twist.linear.x != joy->axes[1]) {
-        drive_msg.twist.angular.z = joy->axes[0];
-        drive_msg.twist.linear.x =  joy->axes[1];
-        drivemsg_pub.publish(drive_msg);
+      if (driveMsg.twist.angular.z != joy->axes[0]
+       || driveMsg.twist.linear.x != joy->axes[1]) {
+        driveMsg.twist.angular.z = joy->axes[0];
+        driveMsg.twist.linear.x =  joy->axes[1];
+        driveMsgPub.publish(driveMsg);
       }
       // // generate and send hitch message
-      if (hitch_msg.pose.position.z != computeZPosition(joy->axes[5], joy->axes[2]) ||
-          hitch_msg.pose.orientation.y != computeYOrientation(joy->buttons[5], joy->buttons[4])) {
-        hitch_msg.pose.position.z = computeZPosition(joy->axes[5], joy->axes[2]);
-        hitch_msg.pose.orientation.y = computeYOrientation(joy->buttons[5], joy->buttons[4]);
-        hitchmsg_pub.publish(hitch_msg);
+      if (hitchMsg.pose.position.z != computeZPosition(joy->axes[5], joy->axes[2]) ||
+          hitchMsg.pose.orientation.y != computeYOrientation(joy->buttons[5], joy->buttons[4])) {
+        hitchMsg.pose.position.z = computeZPosition(joy->axes[5], joy->axes[2]);
+        hitchMsg.pose.orientation.y = computeYOrientation(joy->buttons[5], joy->buttons[4]);
+        hitchMsgPub.publish(hitchMsg);
 
       }
     }
@@ -224,13 +225,13 @@ float Teleop::computeZPosition(float up_axis, float down_axis) {
    }
 }
 
-void Teleop::softestop(bool stop){
+void Teleop::softEstop(bool stop){
   /*
    * @brief publishes software estop command
    * @param[in] stop State of the softestop to publish
    */
-  stop_msg.data = stop;
-  softestop_pub.publish(stop_msg);
+  stopMsg.data = stop;
+  softEstopPub.publish(stopMsg);
 }
 
 void Teleop::activate(bool act){
@@ -238,18 +239,19 @@ void Teleop::activate(bool act){
    * @brief publishes activation command
    * @param[in] act State of the activate function to publish
    */
-  activate_msg.data = act;
-  activate_pub.publish(activate_msg);
+  std_msgs::Bool msg;
+  msg.data = act;
+  activatePub.publish(msg);
 }
 
 void Teleop::state(Behavior behavior){
    /*
     * @brief publishes behavior statechange command
     * @param[in] behavior state to publish
-    * @param[out] updates curr_behavior w/ behavior arg
+    * @param[out] updates currBehavior w/ behavior arg
     */
-   curr_behavior = behavior;
-   state_pub.publish(behavior.getLabel());
+   currBehavior = behavior;
+   statePub.publish(behavior.getLabel());
  }
 
 int Teleop::incrementState(float dir) {
@@ -264,7 +266,7 @@ int Teleop::incrementState(float dir) {
    * @param[in] direction to increment based on sign
    * return integer error code 2, 1, 0
    */
-  int s = find(behaviors.begin(), behaviors.end(), curr_behavior) - behaviors.begin();
+  int s = find(behaviors.begin(), behaviors.end(), currBehavior) - behaviors.begin();
   if(s >= behaviors.size()) return 2;
 
   // If incrementing
@@ -282,7 +284,7 @@ int Teleop::sendUserInput() {
    // Publish 'y' on /user_input topic
    std_msgs::String msg;
    msg.data = 'y';
-   userinput_pub.publish(msg);
+   userInputPub.publish(msg);
 }
 
 int main(int argc, char **argv){
