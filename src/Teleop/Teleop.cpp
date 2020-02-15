@@ -6,9 +6,9 @@
  * the class of joystick as set in the rosparam controllerType and
  * publishing parsed output to the main state controller
  * @author Carl Moser
- * @maintainer Kubo
+ * @maintainer Olin GRAVL
  * @email olingravl@gmail.com
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 #include "Teleop.h"
@@ -33,10 +33,12 @@ Teleop::Teleop()
 , hitchmsg_pub(n.advertise<state_controller::PoseLabeled>("/state_controller/cmd_behavior_hitch", 1))
 , softestop_pub(n.advertise<std_msgs::Bool>("/softestop", 1))
 , state_pub(n.advertise<std_msgs::String>("/state_controller/cmd_state", 1))
+, userinput_pub(n.advertise<std_msgs::String>("/user_input", 1))
 , estop(false)
 , isActivated(false)
 , activateButton(0)
 , estopButton(1)
+, userInputButton(3)
 , behaviorAxis(7)
 , estopButtonFlag(false)
 , activateButtonFlag(false)
@@ -63,11 +65,13 @@ Teleop::Teleop()
   if (controllerType == "gamepad"){
     activateButton = 0;
     estopButton = 1;
+    userInputButton = 3;
     behaviorAxis = 7;
   }
   if (controllerType == "joystick"){
     activateButton = 6;
     estopButton = 0;
+    userInputButton = 3;
     behaviorAxis = 7;
   }
 }
@@ -106,9 +110,19 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
     estop = false;
     estopButtonFlag = false;
   }
+  //check for user input button press
+  if(joy->buttons[userInputButton] && !userInputButtonFlag){
+    sendUserInput();
+    userInputButtonFlag = true;
+  }
+  //check for user input button release
+  if(!joy->buttons[userInputButton] && userInputButtonFlag){
+    userInputButtonFlag = false;
+  }
 
-  //check if currently estopped
+  //check if not currently estopped
   if(!stop_msg.data){
+
     //check for statechange
     if(joy->axes[behaviorAxis] && !behaviorAxisFlag){
       incrementState(joy->axes[behaviorAxis]);
@@ -210,7 +224,6 @@ float Teleop::computeZPosition(float up_axis, float down_axis) {
    }
 }
 
-
 void Teleop::softestop(bool stop){
   /*
    * @brief publishes software estop command
@@ -263,6 +276,13 @@ int Teleop::incrementState(float dir) {
     state(behaviors[(s - 1)]);
   } else return 1;
   return 0;
+}
+
+int Teleop::sendUserInput() {
+   // Publish 'y' on /user_input topic
+   std_msgs::String msg;
+   msg.data = 'y';
+   userinput_pub.publish(msg);
 }
 
 int main(int argc, char **argv){
