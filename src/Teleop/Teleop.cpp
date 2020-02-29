@@ -8,7 +8,7 @@
  * @author Carl Moser
  * @maintainer Olin GRAVL
  * @email olingravl@gmail.com
- * @version 1.3.0
+ * @version 1.4.0
  */
 
 #include "Teleop.h"
@@ -38,6 +38,7 @@ Teleop::Teleop()
 , estop(false)
 , isActivated(false)
 , activateButton(0)
+, bagButton(7)
 , estopButton(1)
 , userInputButton(3)
 , behaviorAxis(7)
@@ -101,24 +102,34 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
     estop = true;
     estopButtonFlag = false;
   }
-  //check for un-estop
+  // Check for un-estop button press
   if(joy->buttons[estopButton] && estop && !estopButtonFlag){
     softEstop(false);
     estopButtonFlag = true;
   }
-  //check for un-estop button release
+  // . . .                     release
   if(!joy->buttons[estopButton] && estop && estopButtonFlag){
     estop = false;
     estopButtonFlag = false;
   }
-  //check for user input button press
+  // Check for user input button press
   if(joy->buttons[userInputButton] && !userInputButtonFlag){
-    sendUserInput();
+    sendUserInput('y');
     userInputButtonFlag = true;
   }
-  //check for user input button release
+  // . . .                       release
   if(!joy->buttons[userInputButton] && userInputButtonFlag){
     userInputButtonFlag = false;
+  }
+
+  // Check for bag button press
+  if(joy->buttons[bagButton] && !bagButtonFlag){
+    sendUserInput('b');
+    bagButtonFlag = true;
+  }
+  // . . .                release
+  if(!joy->buttons[bagButton] && bagButtonFlag){
+    bagButtonFlag = false;
   }
 
   //check if not currently estopped
@@ -280,12 +291,13 @@ int Teleop::incrementState(float dir) {
   return 0;
 }
 
-int Teleop::sendUserInput() {
-   // Publish 'y' on /user_input topic
+int Teleop::sendUserInput(char c) {
+   // Publish char on /user_input topic
    std_msgs::String msg;
-   msg.data = 'y';
+   msg.data = c;
    userInputPub.publish(msg);
 }
+
 
 int main(int argc, char **argv){
 	ros::init(argc, argv, "teleop");

@@ -26,24 +26,27 @@ public:
 private:
   ros::NodeHandle n;
   ros::Subscriber joystickSub;
+
   ros::Publisher activatePub;
   ros::Publisher userInputPub;
   ros::Publisher driveMsgPub;
   ros::Publisher hitchMsgPub;
   ros::Publisher softEstopPub;
   ros::Publisher statePub;
+
   std_msgs::Bool stopMsg;
   Behavior currBehavior;
   state_controller::TwistLabeled driveMsg;
   state_controller::PoseLabeled hitchMsg;
   std::vector<Behavior> behaviors;
 
+  // Functions
   void joyCB(const sensor_msgs::Joy::ConstPtr &joy);
   void softEstop(bool stop);
   void activate(bool aut);
   void state(Behavior behavior);
   int incrementState(float dir);
-  int sendUserInput();
+  int sendUserInput(char c);
   float computeZPosition(float up_axis, float down_axis);
   float computeYOrientation(int up_button, int down_button);
   std::string controllerType;
@@ -53,11 +56,13 @@ private:
   // Buttons & Axes
   int activateButton;
   int estopButton;
+  int bagButton;
   int userInputButton;
   int behaviorAxis;
 
   // Button & Axis Flags
   bool estopButtonFlag;
+  bool bagButtonFlag;
   bool activateButtonFlag;
   bool userInputButtonFlag;
   bool behaviorAxisFlag;
