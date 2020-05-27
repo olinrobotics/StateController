@@ -88,6 +88,13 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
    *
    * @param[in] joy Message read from /joy topic
    */
+
+  if (joy->axes[5] == 0 || joy->axes[2] == 0) {
+    ROS_INFO_ONCE("Hitch has not been initialized. Please pull both triggers to initialize hitch controls");
+  } else if (joy->axes[5] != 0 && joy->axes[2] != 0) {
+    ROS_INFO_ONCE("Hitch successfully initialized. Hitch controls active");
+  }
+
   //check for estop
   if(joy->buttons[estopButton] && !estop && !estopButtonFlag){
     activate(false);
@@ -165,9 +172,18 @@ void Teleop::joyCB(const sensor_msgs::Joy::ConstPtr &joy){
         driveMsg.twist.linear.x =  joy->axes[1];
         driveMsgPub.publish(driveMsg);
       }
-      // // generate and send hitch message
-      if (hitchMsg.pose.position.z != computeZPosition(joy->axes[5], joy->axes[2]) ||
-          hitchMsg.pose.orientation.y != computeYOrientation(joy->buttons[5], joy->buttons[4])) {
+      // if triggers haven't been moved from their default position, do nothing
+      // Note: The Joy node assumes all axes default to 0 and will publish
+      // 0s for the two triggers until they are pulled. The trigger's "resting"
+      // state is 1, not 0, so this becomes problematic and causes "runaway"
+      // behavior when only one of the triggers have been pulled. To get around
+      // this, the operator must pull both triggers to update the joy node
+      // before the hitch will be activated
+      // TODO: Fix this bug
+      if (joy->axes[5] == 0 || joy->axes[2] == 0) { }
+      // generate and send hitch message if unique
+      else if (hitchMsg.pose.position.z != computeZPosition(joy->axes[5], joy->axes[2]) ||
+               hitchMsg.pose.orientation.y != computeYOrientation(joy->buttons[5], joy->buttons[4])) {
         hitchMsg.pose.position.z = computeZPosition(joy->axes[5], joy->axes[2]);
         hitchMsg.pose.orientation.y = computeYOrientation(joy->buttons[5], joy->buttons[4]);
         hitchMsgPub.publish(hitchMsg);
