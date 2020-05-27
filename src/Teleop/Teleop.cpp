@@ -206,11 +206,11 @@ float Teleop::computeZPosition(float up_axis, float down_axis) {
      return priorHitchPositionZ;
    } else if (up_axis < 1) {
      // Increment height by 0.1
-     priorHitchPositionZ = priorHitchPositionZ + 0.0005;
+     priorHitchPositionZ = priorHitchPositionZ + 0.001;
      return priorHitchPositionZ;
    } else if (down_axis < 1){
      // Decrement height by 0.1
-     priorHitchPositionZ = priorHitchPositionZ - 0.0005;
+     priorHitchPositionZ = priorHitchPositionZ - 0.001;
      return priorHitchPositionZ;
    } else{
      // If neither are pressed, do nothing
